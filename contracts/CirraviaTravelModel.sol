@@ -56,6 +56,8 @@ contract CirraviaTravelModel is Ownable {
         require(requestedTokens[_tokenId] != address(0), "Requested token not found. Perhaps token is already accepted/rejected");
         uint price = requestedTokensPrice[_tokenId];
         address payable buyer = requestedTokens[_tokenId];
+        delete requestedTokens[_tokenId];
+        delete requestedTokensPrice[_tokenId];
         emit Reject(buyer, _tokenId, price);
         rejectedBalance[buyer] += price;
     }
