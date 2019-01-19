@@ -7,7 +7,7 @@ contract('CirraviaTravelModel', (accounts) => {
         contract = await CTM.deployed()
         clientAccount = accounts[1];
         ownerAccount = accounts[0];
-        price = 10000000000000000;
+        price = 100000;
     })
 
     it('Estimate gas', async() => {
@@ -17,6 +17,8 @@ contract('CirraviaTravelModel', (accounts) => {
         await  contract.request(tokenId, {from:clientAccount, value: price});
         gas = await contract.accept.estimateGas((tokenId));
         console.log("Accept gas " + gas);
+        gas = await contract.sendEther.estimateGas(accounts[4], price)
+        console.log("Withdraw gas " + gas);
     })
 
 });
