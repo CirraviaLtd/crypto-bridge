@@ -1,6 +1,5 @@
-.secret
-.secret_mainnet
-truffle-config.js
+*secret*
+*infura*
 node_modules
 build
 
