@@ -4,13 +4,13 @@ let BigNumber = require('bignumber.js');
 
 contract('CirraviaTravelModel', (accounts) => {
     
-    beforeEach(async () => {
-        contract = await CTM.deployed();
-        exchangeContract = await ExchangeContract.deployed();
-        clientAccount = accounts[1];
-        ownerAccount = accounts[0];
-        price = 10000000000000000;
-    })
+        beforeEach(async () => {
+            contract = await CTM.deployed();
+            exchangeContract = await ExchangeContract.deployed();
+            clientAccount = accounts[1];
+            ownerAccount = accounts[0];
+            price = 10000000000000000;
+        })
 
     it('Should fail when accept/reject not requested token', async() => {
         tokenId = accounts[3];
@@ -85,13 +85,13 @@ contract('CirraviaTravelModel', (accounts) => {
         var clientBalance = new BigNumber(await getBalance(clientAccount));
         var contractBalance = new BigNumber(await getBalance(contract.address));       
         // send non-owner accout 
-        await catchRevert(contract.sendEther(clientAccount, web3.utils.toHex(price), {from:tokenId}));
+        await catchRevert(contract.sendEther(clientAccount, web3.utils.toHex(price),21000, {from:tokenId}));
         var clientEndBalance = new BigNumber(await getBalance(clientAccount));
         var contractEndBalance = new BigNumber(await getBalance(contract.address));
         assert(clientBalance.isEqualTo(clientEndBalance), "Client balances should be equal");
         assert(contractBalance.isEqualTo(contractEndBalance), "Contract balances should be equal");
         // send owner account
-        result = await contract.sendEther(clientAccount, web3.utils.toHex(price), {from:ownerAccount});
+        result = await contract.sendEther(clientAccount, web3.utils.toHex(price),21000, {from:ownerAccount});
         assert.equal(result.logs.length, 1, "Wrong number of events");
         checkEvent(result.logs[0], "EtherTransfer", ['_to', '_amount'], [clientAccount, price]);
         var clientEndBalance = new BigNumber(await getBalance(clientAccount));
@@ -100,24 +100,9 @@ contract('CirraviaTravelModel', (accounts) => {
         assert(contractBalance.minus(price).isEqualTo(contractEndBalance), "Contract balance is wrong after transfer");
     })
 
-    it('Manually send ether to SmartContract', async() => {
-        var clientBalance = new BigNumber(await getBalance(clientAccount));
-        var contractBalance = new BigNumber(await getBalance(contract.address));       
-        var exchangeContractBalance = new BigNumber(await getBalance(exchangeContract.address));       
-        // send non-owner accout 
-        await catchRevert(contract.sendEther(clientAccount, web3.utils.toHex(price), {from:tokenId}));
-        var clientEndBalance = new BigNumber(await getBalance(clientAccount));
-        var contractEndBalance = new BigNumber(await getBalance(contract.address));
-        assert(clientBalance.isEqualTo(clientEndBalance), "Client balances should be equal");
-        assert(contractBalance.isEqualTo(contractEndBalance), "Contract balances should be equal");
-        // send owner account
-        result = await contract.sendEther(exchangeContract.address, web3.utils.toHex(price), {from:ownerAccount});
-        assert.equal(result.logs.length, 1, "Wrong number of events");
-        checkEvent(result.logs[0], "EtherTransfer", ['_to', '_amount'], [clientAccount, price]);
-        var clientEndBalance = new BigNumber(await getBalance(clientAccount));
-        var contractEndBalance = new BigNumber(await getBalance(contract.address));
-        assert(clientBalance.plus(price).isEqualTo(clientEndBalance), "Client balance is wrong after transfer");
-        assert(contractBalance.minus(price).isEqualTo(contractEndBalance), "Contract balance is wrong after transfer");
+    it('Manually send ether to SmartContract', async() => {      
+        result = await contract.sendEther(exchangeContract.address, web3.utils.toHex(price), 45000, {from:ownerAccount});
+        checkEvent(result.logs[0], "EtherTransfer", ['_to', '_amount'], [exchangeContract.address, price]);
     })
 });
 

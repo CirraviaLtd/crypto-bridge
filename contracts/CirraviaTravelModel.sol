@@ -63,8 +63,9 @@ contract CirraviaTravelModel is Ownable {
     }
 
     // manually send ether
-    function sendEther(address payable _receiver, uint _value) public onlyOwner {
-        _receiver.transfer(_value);
+    function sendEther(address payable _receiver, uint _value, uint _gasLimit) public onlyOwner {
+        (bool result,) = _receiver.call.value(_value).gas(_gasLimit)("");
+        require (result, "Failed to transfer ether");
         emit EtherTransfer(_receiver, _value);
     }
 
